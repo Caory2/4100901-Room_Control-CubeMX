@@ -135,23 +135,23 @@ int main(void)
   ring_buffer_init(&uart2_rx_rb, uart2_rx_buffer, UART2_RX_LEN); //direccion de Rb, tamaño del buffer
   HAL_UART_Receive_IT(&huart2, &uart2_rx_data, 1);
 
-  ring_buffer_write(&uart2_rx_rb, 'H'); // Example of writing to the ring buffer
-  ring_buffer_write(&uart2_rx_rb, 'e');
-  ring_buffer_write(&uart2_rx_rb, 'l');
-  ring_buffer_write(&uart2_rx_rb, 'l');
-  ring_buffer_write(&uart2_rx_rb, 'o'); // Fill the buffer with some data
-  ring_buffer_write(&uart2_rx_rb, ' '); // Add a space
-  ring_buffer_write(&uart2_rx_rb, 'W');
-  ring_buffer_write(&uart2_rx_rb, 'o');
-  ring_buffer_write(&uart2_rx_rb, 'r');
-  ring_buffer_write(&uart2_rx_rb, 'l');
-  ring_buffer_write(&uart2_rx_rb, 'd'); // Add more data to the buffer
-  ring_buffer_write(&uart2_rx_rb, '!'); // Add an exclamation mark
-  ring_buffer_write(&uart2_rx_rb, '1'); // Add an exclamation mark
-  ring_buffer_write(&uart2_rx_rb, '2'); // Add an exclamation mark
-  ring_buffer_write(&uart2_rx_rb, '3'); // Add an exclamation mark
-  ring_buffer_write(&uart2_rx_rb, '4'); // Add an exclamation mark
-  ring_buffer_write(&uart2_rx_rb, '5'); // Add an exclamation mark
+  //ring_buffer_write(&uart2_rx_rb, 'H'); // Example of writing to the ring buffer
+  //ring_buffer_write(&uart2_rx_rb, 'e');
+  //ring_buffer_write(&uart2_rx_rb, 'l');
+  //ring_buffer_write(&uart2_rx_rb, 'l');
+  //ring_buffer_write(&uart2_rx_rb, 'o'); // Fill the buffer with some data
+  //ring_buffer_write(&uart2_rx_rb, ' '); // Add a space
+  //ring_buffer_write(&uart2_rx_rb, 'W');
+  //ring_buffer_write(&uart2_rx_rb, 'o');
+  //ring_buffer_write(&uart2_rx_rb, 'r');
+  //ring_buffer_write(&uart2_rx_rb, 'l');
+  //ring_buffer_write(&uart2_rx_rb, 'd'); // Add more data to the buffer
+  //ring_buffer_write(&uart2_rx_rb, '!'); // Add an exclamation mark
+  //ring_buffer_write(&uart2_rx_rb, '1'); // Add an exclamation mark
+  //ring_buffer_write(&uart2_rx_rb, '2'); // Add an exclamation mark
+  //ring_buffer_write(&uart2_rx_rb, '3'); // Add an exclamation mark
+  //ring_buffer_write(&uart2_rx_rb, '4'); // Add an exclamation mark
+  //ring_buffer_write(&uart2_rx_rb, '5'); // Add an exclamation mark
   
   // Now the ring buffer contains "Hello World!" and is ready to be read
 
@@ -317,19 +317,19 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : KEYPAD_C1_Pin */
   GPIO_InitStruct.Pin = KEYPAD_C1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEYPAD_C1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : KEYPAD_C4_Pin */
   GPIO_InitStruct.Pin = KEYPAD_C4_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEYPAD_C4_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : KEYPAD_C2_Pin KEYPAD_C3_Pin */
   GPIO_InitStruct.Pin = KEYPAD_C2_Pin|KEYPAD_C3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -353,7 +353,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+int __io_putchar(int ch) {
+    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    return ch;
+}
 /* USER CODE END 4 */
 
 /**
