@@ -25,6 +25,7 @@
 #include "ring_buffer.h"
 #include "keypad_driver.h"
 #include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,6 +69,14 @@ keypad_handle_t keypad = {
 #define KEYPAD_BUFFER_LEN 16
 uint8_t keypad_buffer[KEYPAD_BUFFER_LEN];
 ring_buffer_t keypad_rb;
+
+//DEFINIR VARIABLES DE ACCESO
+#define ACCESS_CODE "5A8*" // Código de acceso a la puerta
+#define ACCESS_CODE_LEN 4
+
+char access_buffer[ACCESS_CODE_LEN + 1] = {0};
+uint8_t access_index = 0;
+uint8_t access_granted = 0;
 
 /* USER CODE END PV */
 
@@ -167,26 +176,54 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    led_toggle(&led1);
-    led_toggle(&led_door); // Alterna el LED externo
-    HAL_Delay(500);
-
-    // Check if there are at least 5 bytes in the ring buffer
-    if (ring_buffer_count(&uart2_rx_rb) >= 5) {
-      // If there are at least 5 bytes in the ring buffer, read and process them
-      for (int i = 0; i < 5; i++) {
-        if (ring_buffer_read(&uart2_rx_rb, &uart2_rx_data)) {
-          // Process the received data (for example, print it)
-          HAL_UART_Transmit(&huart2, &uart2_rx_data, 1, HAL_MAX_DELAY);
-        }
-      }
+    // Solo alterna los LEDs si el acceso NO ha sido concedido
+    if (!access_granted) {
+        led_toggle(&led1);
+        led_toggle(&led_door);
+        HAL_Delay(500);
+    } else {
+        // Si el acceso fue concedido, asegúrate de que los LEDs estén encendidos
+        led_on(&led1);
+        led_on(&led_door);
+        HAL_Delay(50); // Pequeño delay opcional para evitar sobrecarga de CPU
     }
 
     //KEYPAD
     uint8_t key_from_buffer;
     if (ring_buffer_read(&keypad_rb, &key_from_buffer)) {
         printf("Tecla presionada: %c\r\n", (char)key_from_buffer);
+
+        if (!access_granted) {
+            access_buffer[access_index++] = (char)key_from_buffer;
+
+            if (access_index == ACCESS_CODE_LEN) {
+                access_buffer[ACCESS_CODE_LEN] = '\0'; // Null-terminate
+
+                if (strcmp(access_buffer, ACCESS_CODE) == 0) {
+                    printf("Acceso concedido\r\n");
+                    access_granted = 1;
+                    led_on(&led1);
+                    led_on(&led_door);
+                } else {
+                    printf("Acceso denegado\r\n");
+                    // Parpadea los LEDs para indicar error
+                    for (int i = 0; i < 4; i++) {
+                        led_on(&led1);
+                        led_on(&led_door);
+                        HAL_Delay(150);
+                        led_off(&led1);
+                        led_off(&led_door);
+                        HAL_Delay(150);
+                    }
+                    access_granted = 0;
+                    led_off(&led1);
+                    led_off(&led_door);
+                }
+                access_index = 0; // Reinicia para el próximo intento
+            }
+        }
     }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
