@@ -7,22 +7,22 @@ static const char keypad_map[KEYPAD_ROWS][KEYPAD_COLS] = {
     {'*', '0', '#', 'D'}
 };
 
-#define KEYPAD_DEBOUNCE_MS 500
+#define KEYPAD_DEBOUNCE_MS 500  // Tiempo de antirrebote en milisegundos
 
 // Variables estáticas para antirrebote por columna
-static uint16_t last_pressed_col = 0xFFFF;
-static uint32_t last_tick = 0;
+static uint16_t last_pressed_col = 0xFFFF; // Última columna presionada
+static uint32_t last_tick = 0;             // Tiempo de la última pulsación
 
 // Función de antirrebote: solo permite una pulsación por columna cada KEYPAD_DEBOUNCE_MS
 static uint8_t keypad_debounce(uint16_t col_pin) {
-    uint32_t now = HAL_GetTick();
+    uint32_t now = HAL_GetTick(); // Obtiene el tiempo actual en ms
     if (last_pressed_col == col_pin) {
         if (now - last_tick < KEYPAD_DEBOUNCE_MS) {
             return 0; // Si no ha pasado el tiempo, ignora la pulsación (rebote)
         }
     }
-    last_pressed_col = col_pin;
-    last_tick = now;
+    last_pressed_col = col_pin; // Actualiza la última columna presionada
+    last_tick = now; // Actualiza el tiempo de la última pulsación  
     return 1; //Pulsación válida
 }
 
@@ -64,7 +64,7 @@ static int keypad_scan_row(keypad_handle_t* keypad, int col_idx) {
 char keypad_scan(keypad_handle_t* keypad, uint16_t col_pin) {
     // Antirrebote por columna
     if (!keypad_debounce(col_pin)) {
-        return '\0';
+        return '\0'; // Si es rebote, no devuelve nada
     }
 
     // Busca el índice de la columna
@@ -75,7 +75,7 @@ char keypad_scan(keypad_handle_t* keypad, uint16_t col_pin) {
             break;
         }
     }
-    if (col_idx == -1) return '\0';
+    if (col_idx == -1) return '\0'; // Si no se encontró la columna, retorna nulo
 
     // Escanea filas para esa columna
     int row_idx = keypad_scan_row(keypad, col_idx);
@@ -84,5 +84,5 @@ char keypad_scan(keypad_handle_t* keypad, uint16_t col_pin) {
         // Si se encontró una fila presionada, retorna el carácter correspondiente
         return keypad_map[row_idx][col_idx];
     }
-    return '\0';
-}
+    return '\0'; // Si no se detectó ninguna fila, retorna nulo
+} 
