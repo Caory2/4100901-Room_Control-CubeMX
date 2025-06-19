@@ -37,3 +37,53 @@ Cada guía contiene ejemplos prácticos y explicaciones orientadas a fortalecer 
 ---
 
 ¡Manos a la obra! Comienza por revisar la [Configuración del Entorno (Doc/SETUP.md)](Doc/SETUP.md).
+
+
+
+
+
+
+flowchart TD
+    %% ENTRADAS
+    GPIO_KEYPAD[GPIO: Interrupciones del teclado]
+    UART_RX[UART2 RX - Interrupción]
+
+    %% DRIVERS
+    KEYPAD_DRIVER[keypad_driver.
+    Escaneo y antirrebote]
+    LED_DRIVER[led_driver. 
+    Control de LEDs]
+    RING_BUFFER[ring_buffer.
+    Buffer circular para UART y Teclado]
+
+    %% LÓGICA PRINCIPAL
+    MAIN_LOOP[main.
+    Bucle principal]
+    ACCESS_LOGIC[Verificación de clave '5A8*']
+
+    %% SALIDAS
+    UART_TX[UART2 TX
+    Salida por printf]
+    LED_FEEDBACK[LD2 y LED_EXT]
+
+    %% FLUJO DE TECLADO
+    GPIO_KEYPAD --> KEYPAD_DRIVER
+    KEYPAD_DRIVER --> RING_BUFFER
+    RING_BUFFER --> MAIN_LOOP
+
+    %% FLUJO DE UART RX
+    UART_RX --> RING_BUFFER
+
+    %% BUCLE PRINCIPAL
+    MAIN_LOOP --> ACCESS_LOGIC
+    ACCESS_LOGIC -->|Acceso Correcto| LED_DRIVER
+    ACCESS_LOGIC -->|Acceso Incorrecto| LED_DRIVER
+
+    %% SALIDAS
+    MAIN_LOOP --> UART_TX
+    MAIN_LOOP --> LED_FEEDBACK
+    LED_DRIVER --> LED_FEEDBACK
+
+    %% INICIALIZACIONES
+    MAIN_LOOP --> RING_BUFFER
+
